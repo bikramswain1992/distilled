@@ -35,13 +35,22 @@ import type * as HttpClientError from "effect/http/HttpClientError";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import * as API from "@distilled.cloud/core/api";
-import { httpSymbol } from "@distilled.cloud/core/trait";
+import {
+  headerSymbol,
+  httpSymbol,
+  responseCodeSymbol,
+} from "@distilled.cloud/core/trait";
 import {
   buildRequest,
   getAnn,
+  getProps,
+  hasPropAnn,
   mapKeys,
+  nameOf,
+  resolveNode,
 } from "@distilled.cloud/core/protocol-http";
 import {
+  rawResponseRootSymbol,
   unwrapRedactedDeep,
   wrapSensitive,
 } from "@distilled.cloud/core/protocol-rest";
@@ -171,6 +180,14 @@ const encode = ({
 // Decode
 // ---------------------------------------------------------------------------
 
+const wantsNumber = (ast: AST.AST): boolean => {
+  const node = resolveNode(ast);
+  return (
+    node._tag === "Number" ||
+    (node._tag === "Union" && node.types.some(wantsNumber))
+  );
+};
+
 const decode = ({
   response,
   outputAst,
@@ -256,9 +273,35 @@ const decode = ({
     // against the output schema. Sensitive members are delivered as
     // `Redacted`.
     const body: unknown = nonJson ? text : (json ?? {});
-    const mapped = yield* validateResponse(
+    let mapped = mapKeys(outputAst, body, "decode");
+    // Only project fields declared by the output AST. Bare response roots
+    // (arrays/scalars) and ordinary body-only outputs keep their original
+    // shape. Missing headers do not invent values for optional members.
+    if (
+      getAnn(outputAst, rawResponseRootSymbol) === undefined &&
+      mapped !== null &&
+      typeof mapped === "object" &&
+      !Array.isArray(mapped)
+    ) {
+      for (const prop of getProps(outputAst)) {
+        const key = String(prop.name);
+        if (hasPropAnn(prop, headerSymbol)) {
+          const value = headers[nameOf(prop, headerSymbol).toLowerCase()];
+          if (value === undefined) {
+            delete (mapped as Record<string, unknown>)[key];
+          } else {
+            (mapped as Record<string, unknown>)[key] = wantsNumber(prop.type)
+              ? Number(value)
+              : value;
+          }
+        } else if (hasPropAnn(prop, responseCodeSymbol)) {
+          (mapped as Record<string, unknown>)[key] = status;
+        }
+      }
+    }
+    mapped = yield* validateResponse(
       outputAst,
-      mapKeys(outputAst, body, "decode"),
+      mapped,
       (cause) => new AzureParseError({ body: nonJson ? text : json, cause }),
     ).pipe(Effect.catch(fail));
     return wrapSensitive(outputAst, mapped);

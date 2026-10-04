@@ -3958,7 +3958,7 @@ export interface CreateStorageAccountResponse {
   /** Resource tags. */
   tags?: CreateStorageAccountResponseTagsMap;
   /** The geo-location where the resource lives */
-  location: string;
+  location?: string;
   /** Properties of the storage account. */
   properties?: StorageAccountProperties;
   /** Gets the SKU. */
@@ -3973,6 +3973,10 @@ export interface CreateStorageAccountResponse {
   zones?: CreateStorageAccountResponseZonesList;
   /** Optional. Gets or sets the zonal placement details for the storage account. */
   placement?: Placement;
+  statusCode: number;
+  azureAsyncOperation?: string;
+  locationHeader?: string;
+  retryAfter?: string;
 }
 export const CreateStorageAccountResponse = /*@__PURE__*/ S.suspend(() =>
   S.Struct({
@@ -3981,7 +3985,7 @@ export const CreateStorageAccountResponse = /*@__PURE__*/ S.suspend(() =>
     type: S.optional(S.String),
     systemData: S.optional(SystemData),
     tags: S.optional(CreateStorageAccountResponseTagsMap),
-    location: S.String,
+    location: S.optional(S.String),
     properties: S.optional(StorageAccountProperties),
     sku: S.optional(Sku),
     kind: S.optional(Kind),
@@ -3989,6 +3993,12 @@ export const CreateStorageAccountResponse = /*@__PURE__*/ S.suspend(() =>
     extendedLocation: S.optional(ExtendedLocation),
     zones: S.optional(CreateStorageAccountResponseZonesList),
     placement: S.optional(Placement),
+    statusCode: S.Number.pipe(T.ResponseCode()),
+    azureAsyncOperation: S.optional(
+      S.String.pipe(T.Header("Azure-AsyncOperation")),
+    ),
+    locationHeader: S.optional(S.String.pipe(T.Header("Location"))),
+    retryAfter: S.optional(S.String.pipe(T.Header("Retry-After"))),
   }),
 ).annotate({
   identifier: "CreateStorageAccountResponse",
@@ -4984,9 +4994,21 @@ export const DeleteStorageAccountRequest = /*@__PURE__*/ S.suspend(() =>
   identifier: "DeleteStorageAccountRequest",
 }) as any as S.Schema<DeleteStorageAccountRequest>;
 
-export interface DeleteStorageAccountResponse {}
+export interface DeleteStorageAccountResponse {
+  statusCode: number;
+  azureAsyncOperation?: string;
+  location?: string;
+  retryAfter?: string;
+}
 export const DeleteStorageAccountResponse = /*@__PURE__*/ S.suspend(() =>
-  S.Struct({}),
+  S.Struct({
+    statusCode: S.Number.pipe(T.ResponseCode()),
+    azureAsyncOperation: S.optional(
+      S.String.pipe(T.Header("Azure-AsyncOperation")),
+    ),
+    location: S.optional(S.String.pipe(T.Header("Location"))),
+    retryAfter: S.optional(S.String.pipe(T.Header("Retry-After"))),
+  }),
 ).annotate({
   identifier: "DeleteStorageAccountResponse",
 }) as any as S.Schema<DeleteStorageAccountResponse>;

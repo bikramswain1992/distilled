@@ -1,0 +1,39 @@
+{
+  "description": "Expose ARM asynchronous-operation response metadata on storage account deletion",
+  "patches": [
+    {
+      "op": "add",
+      "path": "/shapes/com.azure.storage#DeleteStorageAccountResponse",
+      "value": {
+        "type": "structure",
+        "members": {
+          "statusCode": {
+            "target": "smithy.api#Integer",
+            "traits": {
+              "smithy.api#httpResponseCode": {},
+              "smithy.api#required": {}
+            }
+          },
+          "azureAsyncOperation": {
+            "target": "smithy.api#String",
+            "traits": { "smithy.api#httpHeader": "Azure-AsyncOperation" }
+          },
+          "location": {
+            "target": "smithy.api#String",
+            "traits": { "smithy.api#httpHeader": "Location" }
+          },
+          "retryAfter": {
+            "target": "smithy.api#String",
+            "traits": { "smithy.api#httpHeader": "Retry-After" }
+          }
+        },
+        "traits": { "smithy.api#output": {} }
+      }
+    },
+    {
+      "op": "replace",
+      "path": "/shapes/com.azure.storage#DeleteStorageAccount/output/target",
+      "value": "com.azure.storage#DeleteStorageAccountResponse"
+    }
+  ]
+}

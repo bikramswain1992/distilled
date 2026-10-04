@@ -41,6 +41,11 @@ const azureSpec: SdkSpec = {
 
   extraBindings: [
     {
+      trait: "smithy.api#httpResponseCode",
+      binding: "responseCode",
+      pipe: "T.ResponseCode()",
+    },
+    {
       // Sole member of a synthesized wrapper for bare array/scalar response
       // bodies; as the response's only member, the response IS the payload.
       trait: RAW_RESPONSE_TRAIT,

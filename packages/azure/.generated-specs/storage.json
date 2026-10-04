@@ -17058,7 +17058,7 @@
         "target": "com.azure.storage#DeleteStorageAccountRequest"
       },
       "output": {
-        "target": "smithy.api#Unit"
+        "target": "com.azure.storage#DeleteStorageAccountResponse"
       },
       "traits": {
         "smithy.api#http": {
@@ -19974,8 +19974,7 @@
         "location": {
           "target": "smithy.api#String",
           "traits": {
-            "smithy.api#documentation": "The geo-location where the resource lives",
-            "smithy.api#required": {}
+            "smithy.api#documentation": "The geo-location where the resource lives"
           }
         },
         "properties": {
@@ -20018,6 +20017,31 @@
           "target": "com.azure.storage#Placement",
           "traits": {
             "smithy.api#documentation": "Optional. Gets or sets the zonal placement details for the storage account."
+          }
+        },
+        "statusCode": {
+          "target": "smithy.api#Integer",
+          "traits": {
+            "smithy.api#httpResponseCode": {},
+            "smithy.api#required": {}
+          }
+        },
+        "azureAsyncOperation": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Azure-AsyncOperation"
+          }
+        },
+        "locationHeader": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Location"
+          }
+        },
+        "retryAfter": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Retry-After"
           }
         }
       },
@@ -23811,6 +23835,39 @@
       "traits": {
         "smithy.api#title": "Azure Storage",
         "smithy.api#documentation": "Azure Storage API — merged from the storage resource-manager specs (latest stable api-version per resource provider)."
+      }
+    },
+    "com.azure.storage#DeleteStorageAccountResponse": {
+      "type": "structure",
+      "members": {
+        "statusCode": {
+          "target": "smithy.api#Integer",
+          "traits": {
+            "smithy.api#httpResponseCode": {},
+            "smithy.api#required": {}
+          }
+        },
+        "azureAsyncOperation": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Azure-AsyncOperation"
+          }
+        },
+        "location": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Location"
+          }
+        },
+        "retryAfter": {
+          "target": "smithy.api#String",
+          "traits": {
+            "smithy.api#httpHeader": "Retry-After"
+          }
+        }
+      },
+      "traits": {
+        "smithy.api#output": {}
       }
     }
   }

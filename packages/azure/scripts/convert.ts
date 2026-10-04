@@ -734,9 +734,17 @@ function foldApiVersion(model: SmithyModel): void {
 
 async function main() {
   const started = Date.now();
+  const serviceFlag = process.argv.indexOf("--service");
+  const onlyService =
+    serviceFlag < 0 ? undefined : process.argv[serviceFlag + 1];
+  if (serviceFlag >= 0 && (!onlyService || onlyService.startsWith("-"))) {
+    throw new Error("--service requires a service name (e.g. storage)");
+  }
   console.log("🛠️  azure specs → smithy");
   console.log("   Discovering Azure REST API specs...");
-  const specs = discoverSpecs();
+  const specs = discoverSpecs().filter(
+    (spec) => onlyService === undefined || spec.service === onlyService,
+  );
   console.log(`   Found ${specs.length} spec files across Azure services.\n`);
 
   if (specs.length === 0) {
@@ -745,7 +753,10 @@ async function main() {
     process.exit(1);
   }
 
-  fs.rmSync(outDir, { recursive: true, force: true });
+  // A targeted conversion must not discard other services' generated models.
+  if (onlyService === undefined) {
+    fs.rmSync(outDir, { recursive: true, force: true });
+  }
   fs.mkdirSync(outDir, { recursive: true });
 
   // Group by service, preserving discovery order.
@@ -893,7 +904,10 @@ async function main() {
   );
   console.log(`  Elapsed: ${((Date.now() - started) / 1000).toFixed(1)}s`);
   console.log(`  Output: ${outDir}`);
-  await finalizeConvert({ root: rootDir });
+  await finalizeConvert({
+    root: rootDir,
+    include: onlyService ? (resource) => resource === onlyService : undefined,
+  });
 }
 
 main();

@@ -1,0 +1,44 @@
+{
+  "description": "Expose asynchronous creation metadata and permit an empty pending response",
+  "patches": [
+    {
+      "op": "remove",
+      "path": "/shapes/com.azure.storage#CreateStorageAccountResponse/members/location/traits/smithy.api#required"
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.azure.storage#CreateStorageAccountResponse/members/statusCode",
+      "value": {
+        "target": "smithy.api#Integer",
+        "traits": {
+          "smithy.api#httpResponseCode": {},
+          "smithy.api#required": {}
+        }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.azure.storage#CreateStorageAccountResponse/members/azureAsyncOperation",
+      "value": {
+        "target": "smithy.api#String",
+        "traits": { "smithy.api#httpHeader": "Azure-AsyncOperation" }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.azure.storage#CreateStorageAccountResponse/members/locationHeader",
+      "value": {
+        "target": "smithy.api#String",
+        "traits": { "smithy.api#httpHeader": "Location" }
+      }
+    },
+    {
+      "op": "add",
+      "path": "/shapes/com.azure.storage#CreateStorageAccountResponse/members/retryAfter",
+      "value": {
+        "target": "smithy.api#String",
+        "traits": { "smithy.api#httpHeader": "Retry-After" }
+      }
+    }
+  ]
+}
