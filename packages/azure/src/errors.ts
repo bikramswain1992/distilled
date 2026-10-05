@@ -73,6 +73,18 @@ export class ResourceGroupNotFound extends Schema.TaggedError<ResourceGroupNotFo
   AzureErrorFields,
 ).pipe(Category.withNotFoundError) {}
 
+/** ARM error code `StorageAccountNotFound`. */
+export class StorageAccountNotFound extends Schema.TaggedError<StorageAccountNotFound>()(
+  "StorageAccountNotFound",
+  AzureErrorFields,
+).pipe(Category.withNotFoundError) {}
+
+/** ARM error code `RoleAssignmentNotFound`. */
+export class RoleAssignmentNotFound extends Schema.TaggedError<RoleAssignmentNotFound>()(
+  "RoleAssignmentNotFound",
+  AzureErrorFields,
+).pipe(Category.withNotFoundError) {}
+
 /**
  * Returned when the subscription ID is missing or invalid.
  * Azure error code: `MissingSubscription` or `SubscriptionNotFound`
@@ -292,6 +304,8 @@ export const AZURE_ERROR_CODE_MAP: Record<string, new (props: any) => unknown> =
     // Not-found
     ResourceNotFound: ResourceNotFound,
     ResourceGroupNotFound: ResourceGroupNotFound,
+    StorageAccountNotFound: StorageAccountNotFound,
+    RoleAssignmentNotFound: RoleAssignmentNotFound,
     MissingSubscription: SubscriptionNotFound,
     SubscriptionNotFound: SubscriptionNotFound,
 
@@ -364,6 +378,8 @@ export class AzureParseError extends Schema.TaggedError<AzureParseError>()(
 export type AzureApiError =
   | ResourceNotFound
   | ResourceGroupNotFound
+  | StorageAccountNotFound
+  | RoleAssignmentNotFound
   | SubscriptionNotFound
   | AuthorizationFailed
   | InvalidAuthenticationToken

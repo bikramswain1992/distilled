@@ -6,7 +6,11 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import { Credentials, DEFAULT_API_BASE_URL } from "./credentials.ts";
-import { AzureParseError } from "./errors.ts";
+import {
+  AzureParseError,
+  RoleAssignmentNotFound,
+  StorageAccountNotFound,
+} from "./errors.ts";
 import { AzureProtocol } from "./protocol.ts";
 import * as T from "./traits.ts";
 
@@ -103,5 +107,39 @@ describe("Azure ARM success response metadata", () => {
       _tag: "Success",
       success: { retryAfter: 7 },
     });
+  });
+});
+
+describe("Azure ARM resource-specific errors", () => {
+  test("404 role assignment errors are typed", async () => {
+    const result = await run(
+      404,
+      JSON.stringify({
+        error: {
+          code: "RoleAssignmentNotFound",
+          message: "The role assignment is not found",
+        },
+      }),
+      {},
+    );
+    expect(result.strict._tag).toBe("Failure");
+    if (result.strict._tag === "Failure")
+      expect(result.strict.failure).toBeInstanceOf(RoleAssignmentNotFound);
+  });
+
+  test("404 storage account errors are typed", async () => {
+    const result = await run(
+      404,
+      JSON.stringify({
+        error: {
+          code: "StorageAccountNotFound",
+          message: "The storage account is not found",
+        },
+      }),
+      {},
+    );
+    expect(result.strict._tag).toBe("Failure");
+    if (result.strict._tag === "Failure")
+      expect(result.strict.failure).toBeInstanceOf(StorageAccountNotFound);
   });
 });
